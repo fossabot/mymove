@@ -1,0 +1,2 @@
+ALTER TABLE move_task_orders
+	ADD personally_procured_move_id uuid REFERENCES personally_procured_moves;

@@ -106,11 +106,16 @@ paths:
       summary: Updates a move order's estimated weight by ID
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move task order to use
         in: path
         name: moveTaskOrderID
         required: true
         type: string
+      - in: header
+        name: If-Unmodified-Since
+        type: string
+        format: datetime
+        required: true
     patch:
       consumes:
         - application/json
@@ -123,16 +128,12 @@ paths:
           schema:
             type: object
             properties:
-              scheduled-move-date:
-                type: string
-                format: date
-                example: '2018-04-26'
-              secondary-pickup-address:
-                $ref: '#/definitions/Address'
-              secondary-delivery-address:
-                $ref: '#/definitions/Address'
               ppm-is-included:
                 type: boolean
+              ppm-type:
+                $ref: '#/definitions/PPMType'
+              ppm-estimated-weight:
+                type: integer
       responses:
         '200':
           description: Successfully updated move task order post counseling information
@@ -150,6 +151,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '422':
           description: The request payload is invalid
           schema:
@@ -162,7 +167,7 @@ paths:
         - moveTaskOrder
         - prime
       description: Updates move task order's post counseling information
-      operationId: updateMoveTaskOrderPostCounselingInformation
+      operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
   '/move-task-orders/{moveTaskOrderID}/destination-address':
     parameters:
@@ -940,6 +945,12 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PaymentRequest'
+  PPMType:
+    type: string
+    title: PPM Type
+    enum:
+      - FULL
+      - PARTIAL
   ServiceItem:
     properties:
       id:
