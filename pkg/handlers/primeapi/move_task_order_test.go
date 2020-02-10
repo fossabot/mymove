@@ -2,7 +2,14 @@ package primeapi
 
 import (
 	"fmt"
+	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
+	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"net/http/httptest"
+	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -90,4 +97,40 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	suite.Equal(1, len(moveTaskOrdersPayload))
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
+}
+
+func (suite *HandlerSuite) TestUpdateMTOPostCounselingInformationHandler() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			PersonallyProcuredMoveID: ppm.ID,
+		},
+	})
+
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+
+	params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+		HTTPRequest:       req,
+		MoveTaskOrderID:   mto.ID.String(),
+		Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
+			PpmEstimatedWeight: 2000,
+			PpmIsIncluded:      true,
+			PpmType:            "FULL",
+		},
+		IfUnmodifiedSince: strfmt.DateTime(ppm.UpdatedAt),
+	}
+
+	suite.T().Run("Successful PATCH - Integration Test", func(t *testing.T) {
+		updater := mto.NewMoveTaskOrderUpdater(suite.DB())
+		handler := UpdateMTOPostCounselingInfoHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationOK{}, response)
+
+		okResponse := response.(*movetaskorderops.UpdateMTOPostCounselingInformationOK)
+		suite.Equal(ppm.ID.String(), okResponse.Payload.ID.String())
+	})
 }

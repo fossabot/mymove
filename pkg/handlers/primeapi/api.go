@@ -32,6 +32,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		mtoshipment.NewMTOShipmentUpdater(context.DB()),
 	}
 
+	// primeAPI.MtoShipmentUpdateMTOPostCounselingInformation = UpdateMTOPostCounselingInfoHandler{
+	// 	context,
+	// 	mtoshipment.NewMTOShipmentUpdater(context.DB()),
+	// }
+
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestCreator(context.DB()),

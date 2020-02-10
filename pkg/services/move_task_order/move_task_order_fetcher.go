@@ -133,14 +133,14 @@ func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrde
 	return nil
 }
 
-type moveTaskOrderStatusUpdater struct {
+type moveTaskOrderUpdater struct {
 	db *pop.Connection
 	moveTaskOrderFetcher
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
-	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}}
+func NewMoveTaskOrderUpdater(db *pop.Connection) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}}
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime

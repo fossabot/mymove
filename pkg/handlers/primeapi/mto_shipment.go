@@ -37,3 +37,29 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
 }
+
+type UpdateMTOPostCounselingInfoHandler struct {
+	handlers.HandlerContext
+	mtoShipmentUpdater services.MTOShipmentUpdater
+}
+
+// Handle handler that updates a mto shipment
+func (h UpdateMTOPostCounselingInfoHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(params)
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOPostCounselingInfoHandler error", zap.Error(err))
+		switch err.(type) {
+		case mtoshipmentservice.ErrNotFound:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		case mtoshipmentservice.ErrInvalidInput:
+			return mtoshipmentops.NewUpdateMTOShipmentBadRequest()
+		case mtoshipmentservice.ErrPreconditionFailed:
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
+		default:
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
+		}
+	}
+	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
+}

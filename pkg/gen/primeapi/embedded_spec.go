@@ -326,7 +326,7 @@ func init() {
           "prime"
         ],
         "summary": "Updates move task order's post counseling information",
-        "operationId": "updateMoveTaskOrderPostCounselingInformation",
+        "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
             "name": "body",
@@ -335,19 +335,14 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "ppm-estimated-weight": {
+                  "type": "integer"
+                },
                 "ppm-is-included": {
                   "type": "boolean"
                 },
-                "scheduled-move-date": {
-                  "type": "string",
-                  "format": "date",
-                  "example": "2018-04-26"
-                },
-                "secondary-delivery-address": {
-                  "$ref": "#/definitions/Address"
-                },
-                "secondary-pickup-address": {
-                  "$ref": "#/definitions/Address"
+                "ppm-type": {
+                  "$ref": "#/definitions/PPMType"
                 }
               }
             }
@@ -378,6 +373,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
           "422": {
             "description": "The request payload is invalid",
             "schema": {
@@ -395,9 +396,16 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move task order to use",
           "name": "moveTaskOrderID",
           "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "datetime",
+          "name": "If-Unmodified-Since",
+          "in": "header",
           "required": true
         }
       ]
@@ -1265,6 +1273,14 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
       }
+    },
+    "PPMType": {
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "FULL",
+        "PARTIAL"
+      ]
     },
     "PaymentRequest": {
       "type": "object",
@@ -1801,7 +1817,7 @@ func init() {
           "prime"
         ],
         "summary": "Updates move task order's post counseling information",
-        "operationId": "updateMoveTaskOrderPostCounselingInformation",
+        "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
             "name": "body",
@@ -1810,19 +1826,14 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "ppm-estimated-weight": {
+                  "type": "integer"
+                },
                 "ppm-is-included": {
                   "type": "boolean"
                 },
-                "scheduled-move-date": {
-                  "type": "string",
-                  "format": "date",
-                  "example": "2018-04-26"
-                },
-                "secondary-delivery-address": {
-                  "$ref": "#/definitions/Address"
-                },
-                "secondary-pickup-address": {
-                  "$ref": "#/definitions/Address"
+                "ppm-type": {
+                  "$ref": "#/definitions/PPMType"
                 }
               }
             }
@@ -1862,6 +1873,15 @@ func init() {
               }
             }
           },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "422": {
             "description": "The request payload is invalid",
             "schema": {
@@ -1882,9 +1902,16 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move task order to use",
           "name": "moveTaskOrderID",
           "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "datetime",
+          "name": "If-Unmodified-Since",
+          "in": "header",
           "required": true
         }
       ]
@@ -2824,6 +2851,14 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
       }
+    },
+    "PPMType": {
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "FULL",
+        "PARTIAL"
+      ]
     },
     "PaymentRequest": {
       "type": "object",
