@@ -1,11 +1,14 @@
 package primeapi
 
 import (
+	"github.com/transcom/mymove/pkg/services"
+	mtoshipmentservice "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 
@@ -41,3 +44,30 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }
+
+type UpdateMTOPostCounselingInfoHandler struct {
+	handlers.HandlerContext
+	mtoUpdater services.MoveTaskOrderUpdater
+}
+
+// Handle handler that updates a mto shipment
+func (h UpdateMTOPostCounselingInfoHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	mto, err := h.mtoUpdater.UpdatePostCounselingInfo(uuid.FromStringOrNil(params.MoveTaskOrderID), params)
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOPostCounselingInfoHandler error", zap.Error(err))
+		switch err.(type) {
+		case mtoshipmentservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
+		case mtoshipmentservice.ErrInvalidInput:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity()
+		case mtoshipmentservice.ErrPreconditionFailed:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed()
+		default:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
+		}
+	}
+	mtoPayload := payloads.MoveTaskOrder(mto)
+	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload)
+}
+

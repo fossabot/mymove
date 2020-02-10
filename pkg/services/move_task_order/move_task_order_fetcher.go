@@ -3,10 +3,10 @@ package movetaskorder
 import (
 	"database/sql"
 	"fmt"
-	"strings"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"strings"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -159,3 +159,23 @@ func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*
 	}
 	return mto, nil
 }
+
+func (f moveTaskOrderFetcher) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, ppmParams movetaskorderops.UpdateMTOPostCounselingInformationParams) (*models.MoveTaskOrder, error) {
+	//mtoPayload := ppmParams.Body
+	//unmodifiedSince := time.Time(ppmParams.IfUnmodifiedSince)
+	mtoID := uuid.FromStringOrNil(ppmParams.MoveTaskOrderID)
+	mto, err := f.FetchMoveTaskOrder(mtoID)
+
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
+

@@ -130,6 +130,10 @@ paths:
             properties:
               ppm-is-included:
                 type: boolean
+              ppmID:
+                type: string
+                required: true
+                format: uuid
               ppm-type:
                 $ref: '#/definitions/PPMType'
               ppm-estimated-weight:
@@ -767,6 +771,17 @@ definitions:
       originDutyStation:
         $ref: '#/definitions/DutyStation'
     type: object
+  PersonallyProcuredMove:
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/PPMType'
+      estimated-weight:
+        type: integer
   MoveTaskOrder:
     type: object
     properties:
@@ -802,6 +817,9 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+      personally_procured_move:
+        $ref:
+          '#/definitions/PersonallyProcuredMove'
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
