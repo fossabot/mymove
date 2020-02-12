@@ -1263,7 +1263,6 @@ func init() {
         },
         "referenceId": {
           "type": "string",
-          "x-nullable": true,
           "example": "1001-3456"
         },
         "updatedAt": {
@@ -2834,7 +2833,6 @@ func init() {
         },
         "referenceId": {
           "type": "string",
-          "x-nullable": true,
           "example": "1001-3456"
         },
         "updatedAt": {
